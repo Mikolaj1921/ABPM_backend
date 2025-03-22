@@ -1,0 +1,12 @@
+/backend/node_modules
+node_modules/
+
+backend/.env
+
+.env
+*.env
+
+.expo/
+.expo-shared/
+
+.vscode
