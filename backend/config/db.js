@@ -1,6 +1,6 @@
 // db.js
-const { Pool } = require('pg');
-require('dotenv').config();
+const { Pool } = require("pg");
+require("dotenv").config();
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -13,12 +13,12 @@ const pool = new Pool({
 });
 
 // test connect
-pool.on('connect', () => {
-  console.log('Connect with db abpm on Render');
+pool.on("connect", () => {
+  console.log("Connect with db abpm on SuperBase");
 });
 
-pool.on('error', (err) => {
-  console.error('Error pull:', err.stack);
+pool.on("error", (err) => {
+  console.error("Error pull:", err.stack);
 });
 
 module.exports = pool;
