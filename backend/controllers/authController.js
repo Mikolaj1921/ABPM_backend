@@ -108,7 +108,7 @@ const login = async (req, res) => {
 // Pobieranie danych zalogowanego użytkownika
 const getUser = async (req, res) => {
   try {
-    const userId = req.userId; // Z authMiddleware
+    const userId = req.user.id;
     const result = await pool.query(
       "SELECT id, first_name, last_name, email FROM users WHERE id = $1",
       [userId]

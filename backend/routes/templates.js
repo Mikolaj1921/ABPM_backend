@@ -2,26 +2,37 @@ const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
 
-// Konfiguracja klienta Supabase
-const supabaseUrl = process.env.SUPABASE_URL; // Zastąp swoim URL-em Supabase
-const supabaseKey = process.env.SUPABASE_ANON_KEY; // Zastąp swoim kluczem API (anon key)
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Konfiguracja Supabase
+const supabase = createClient(
+  process.env.SUPABASE_API_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-// Endpoint do zapisywania szablonów (POST /api/templates)
+// POST /api/templates
 router.post("/", async (req, res) => {
-  const { name, category, content, created_by } = req.body;
   try {
+    const { name, category, content } = req.body;
+
+    if (!name || !category || !content) {
+      return res
+        .status(400)
+        .json({ error: "Brak wymaganych pól: name, category, content" });
+    }
+
     const { data, error } = await supabase
       .from("templates")
-      .insert([{ name, category, content, created_by }])
-      .select();
+      .insert([{ name, category, content }])
+      .select()
+      .single();
 
     if (error) {
+      console.error("Supabase error (POST /templates):", error);
       throw error;
     }
 
-    res.status(201).json(data[0]);
+    res.status(201).json(data);
   } catch (error) {
+    console.error("Błąd podczas zapisywania szablonu:", error);
     res.status(500).json({
       error: "Błąd podczas zapisywania szablonu",
       details: error.message,
@@ -29,23 +40,29 @@ router.post("/", async (req, res) => {
   }
 });
 
+// GET /api/templates
 router.get("/", async (req, res) => {
-  const { category } = req.query;
   try {
+    const { category } = req.query;
+
     let query = supabase.from("templates").select("*");
 
     if (category) {
-      query = query.eq("category", category); // UWAGA: przypisujemy z powrotem
+      query = query.eq("category", category);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await query.order("created_at", {
+      ascending: false,
+    });
 
     if (error) {
+      console.error("Supabase error (GET /templates):", error);
       throw error;
     }
 
     res.json(data);
   } catch (error) {
+    console.error("Błąd podczas pobierania szablonów:", error);
     res.status(500).json({
       error: "Błąd podczas pobierania szablonów",
       details: error.message,

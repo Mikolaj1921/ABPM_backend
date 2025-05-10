@@ -1,46 +1,42 @@
 const dotenv = require("dotenv");
 dotenv.config();
-
 const express = require("express");
-const { createClient } = require("@supabase/supabase-js");
-const PDFDocument = require("pdfkit");
-const crypto = require("crypto");
 const cors = require("cors");
-const pool = require("./config/db");
-const app = express();
-
-// Routers path
+const { createClient } = require("@supabase/supabase-js");
 const templatesRouter = require("./routes/templates");
 const documentsRouter = require("./routes/documents");
-const generateDocumentRouter = require("./routes/generate-document");
 const authRoutes = require("./routes/authRoutes");
+const authMiddleware = require("./middlewares/authMiddleware");
+const pool = require("./config/db");
+
+const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+// Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_API_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
 // Routes
-app.use("/api/templates", templatesRouter);
-app.use("/api/documents", documentsRouter);
-app.use("/api/generate-document", generateDocumentRouter);
+app.use("/api/templates", authMiddleware, templatesRouter);
+app.use("/api/documents", authMiddleware, documentsRouter);
 app.use("/api/auth", authRoutes);
 
-// Supabase client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Test database connection
+// Test database connection (pozostawione dla kompatybilności)
 pool.connect((err) => {
   if (err) {
     console.error("DB error:", err.message);
   } else {
-    console.log("Connected to Supabase");
+    console.log("Connected to Supabase via pool");
   }
 });
 
-// Error handling for undefined routes
-app.use((req, res, next) => {
+// Error handling
+app.use((req, res) => {
   res.status(404).json({ message: `Cannot ${req.method} ${req.originalUrl}` });
 });
 
