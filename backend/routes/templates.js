@@ -8,6 +8,36 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
+// GET /api/templates/:id/content
+router.get("/:id/content", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("templates")
+      .select("content")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Supabase error (GET /templates/:id/content):", error);
+      throw error;
+    }
+
+    if (!data) {
+      return res.status(404).json({ error: `Szablon o ID ${id} nie istnieje` });
+    }
+
+    res.json({ content: data.content });
+  } catch (error) {
+    console.error("Błąd podczas pobierania treści szablonu:", error);
+    res.status(500).json({
+      error: "Błąd podczas pobierania treści szablonu",
+      details: error.message,
+    });
+  }
+});
+
 // POST /api/templates
 router.post("/", async (req, res) => {
   try {
@@ -65,6 +95,36 @@ router.get("/", async (req, res) => {
     console.error("Błąd podczas pobierania szablonów:", error);
     res.status(500).json({
       error: "Błąd podczas pobierania szablonów",
+      details: error.message,
+    });
+  }
+});
+
+// NEW: GET /api/templates/:id
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("templates")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Supabase error (GET /templates/:id):", error);
+      throw error;
+    }
+
+    if (!data) {
+      return res.status(404).json({ error: `Szablon o ID ${id} nie istnieje` });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Błąd podczas pobierania szablonu:", error);
+    res.status(500).json({
+      error: "Błąd podczas pobierania szablonu",
       details: error.message,
     });
   }

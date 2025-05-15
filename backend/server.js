@@ -10,6 +10,7 @@ const authMiddleware = require("./middlewares/authMiddleware");
 const pool = require("./config/db");
 
 const app = express();
+app.set("timeout", 60000);
 
 // Middleware
 app.use(cors());
@@ -18,7 +19,10 @@ app.use(express.json());
 // Supabase client
 const supabase = createClient(
   process.env.SUPABASE_API_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_ANON_KEY,
+  {
+    fetch: (url, options) => fetch(url, { ...options, timeout: 20000 }), //for unstable wifi
+  }
 );
 
 // Routes
