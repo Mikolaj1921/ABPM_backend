@@ -12,6 +12,7 @@ const register = async (req, res) => {
     phone_number,
     phone_prefix,
     date_of_birth,
+    rodo,
   } = req.body;
 
   try {
@@ -23,13 +24,18 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Email already in use" });
     }
 
+    // Walidacja zgody RODO
+    if (!rodo) {
+      return res.status(400).json({ message: "RODO consent is required" });
+    }
+
     // Hashowanie hasła
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Wstawienie użytkownika do bazy danych
     const result = await pool.query(
-      `INSERT INTO users (first_name, last_name, email, password, phone_number, phone_prefix, date_of_birth)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO users (first_name, last_name, email, password, phone_number, phone_prefix, date_of_birth, rodo)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING id, first_name, last_name, email`,
       [
         firstName,
@@ -39,6 +45,7 @@ const register = async (req, res) => {
         phone_number,
         phone_prefix,
         date_of_birth,
+        rodo,
       ]
     );
 
