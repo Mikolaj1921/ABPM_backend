@@ -108,6 +108,34 @@ router.post("/", upload.single("file"), handleMulterError, async (req, res) => {
       data_wystawienia,
       numer_konta_bankowego,
       products,
+      obowiazki,
+      oferty,
+      nazwa_firmy,
+      adres_firmy,
+      nip,
+      regon,
+      przedstawiciel_imie_nazwisko,
+      przedstawiciel_stanowisko,
+      imie_nazwisko_pracownika,
+      adres_pracownika,
+      pesel_pracownika,
+      stanowisko,
+      wymiar_pracy,
+      miejsce_pracy,
+      wynagrodzenie,
+      termin_platnosci,
+      czas_trwania_umowy,
+      data_rozpoczecia,
+      data,
+      miejsce_zawarcia,
+      numer_faktury,
+      data_sprzedazy,
+      sposob_platnosci,
+      telefon_wystawcy,
+      email_wystawcy,
+      telefon_klienta,
+      email_klienta,
+      wystawiajacy,
     } = formData;
 
     if (!templateId || !title || !type) {
@@ -128,10 +156,40 @@ router.post("/", upload.single("file"), handleMulterError, async (req, res) => {
       parsedProducts = [];
     }
 
-    console.log("Received products:", parsedProducts);
+    // Parsowanie obowiazki z JSON
+    let parsedObowiazki = [];
+    try {
+      parsedObowiazki = obowiazki ? JSON.parse(obowiazki) : [];
+      if (!Array.isArray(parsedObowiazki)) {
+        parsedObowiazki = [];
+      }
+    } catch (e) {
+      console.error("Error parsing obowiazki:", e);
+      parsedObowiazki = [];
+    }
+
+    // Parsowanie oferty z JSON
+    let parsedOferty = [];
+    try {
+      parsedOferty = oferty ? JSON.parse(oferty) : [];
+      if (!Array.isArray(parsedOferty)) {
+        parsedOferty = [];
+      }
+    } catch (e) {
+      console.error("Error parsing oferty:", e);
+      parsedOferty = [];
+    }
+
+    console.log("Received data:", {
+      products: parsedProducts,
+      obowiazki: parsedObowiazki,
+      oferty: parsedOferty,
+    });
 
     // Nazwa pliku
-    const fileName = `faktura_${Date.now()}.pdf`;
+    const fileName = `${type
+      .toLowerCase()
+      .replace(" ", "_")}_${Date.now()}.pdf`;
 
     // Zapisz PDF w Cloudinary
     const uploadResult = await new Promise((resolve, reject) => {
@@ -173,6 +231,8 @@ router.post("/", upload.single("file"), handleMulterError, async (req, res) => {
           podpis: podpis || null,
           data: {
             products: parsedProducts,
+            obowiazki: parsedObowiazki,
+            oferty: parsedOferty,
             numer_oferty: numer_oferty || null,
             nazwa_firmy_wystawcy: nazwa_firmy_wystawcy || null,
             nip_wystawcy: nip_wystawcy || null,
@@ -186,6 +246,32 @@ router.post("/", upload.single("file"), handleMulterError, async (req, res) => {
             wartosc_brutto_suma: wartosc_brutto_suma || null,
             data_wystawienia: data_wystawienia || null,
             numer_konta_bankowego: numer_konta_bankowego || null,
+            nazwa_firmy: nazwa_firmy || null,
+            adres_firmy: adres_firmy || null,
+            nip: nip || null,
+            regon: regon || null,
+            przedstawiciel_imie_nazwisko: przedstawiciel_imie_nazwisko || null,
+            przedstawiciel_stanowisko: przedstawiciel_stanowisko || null,
+            imie_nazwisko_pracownika: imie_nazwisko_pracownika || null,
+            adres_pracownika: adres_pracownika || null,
+            pesel_pracownika: pesel_pracownika || null,
+            stanowisko: stanowisko || null,
+            wymiar_pracy: wymiar_pracy || null,
+            miejsce_pracy: miejsce_pracy || null,
+            wynagrodzenie: wynagrodzenie || null,
+            termin_platnosci: termin_platnosci || null,
+            czas_trwania_umowy: czas_trwania_umowy || null,
+            data_rozpoczecia: data_rozpoczecia || null,
+            data: data || null,
+            miejsce_zawarcia: miejsce_zawarcia || null,
+            numer_faktury: numer_faktury || null,
+            data_sprzedazy: data_sprzedazy || null,
+            sposob_platnosci: sposob_platnosci || null,
+            telefon_wystawcy: telefon_wystawcy || null,
+            email_wystawcy: email_wystawcy || null,
+            telefon_klienta: telefon_klienta || null,
+            email_klienta: email_klienta || null,
+            wystawiajacy: wystawiajacy || null,
           },
         },
       ])
@@ -197,13 +283,15 @@ router.post("/", upload.single("file"), handleMulterError, async (req, res) => {
       throw documentError;
     }
 
-    console.log("Inserted document products:", documentData.data?.products);
+    console.log("Inserted document data:", documentData.data);
 
     res.status(200).json({
       document: {
         ...documentData,
         url: uploadResult.secure_url,
         products: documentData.data?.products || [],
+        obowiazki: documentData.data?.obowiazki || [],
+        oferty: documentData.data?.oferty || [],
         numer_oferty: documentData.data?.numer_oferty || null,
         nazwa_firmy_wystawcy: documentData.data?.nazwa_firmy_wystawcy || null,
         nip_wystawcy: documentData.data?.nip_wystawcy || null,
@@ -217,6 +305,35 @@ router.post("/", upload.single("file"), handleMulterError, async (req, res) => {
         wartosc_brutto_suma: documentData.data?.wartosc_brutto_suma || null,
         data_wystawienia: documentData.data?.data_wystawienia || null,
         numer_konta_bankowego: documentData.data?.numer_konta_bankowego || null,
+        nazwa_firmy: documentData.data?.nazwa_firmy || null,
+        adres_firmy: documentData.data?.adres_firmy || null,
+        nip: documentData.data?.nip || null,
+        regon: documentData.data?.regon || null,
+        przedstawiciel_imie_nazwisko:
+          documentData.data?.przedstawiciel_imie_nazwisko || null,
+        przedstawiciel_stanowisko:
+          documentData.data?.przedstawiciel_stanowisko || null,
+        imie_nazwisko_pracownika:
+          documentData.data?.imie_nazwisko_pracownika || null,
+        adres_pracownika: documentData.data?.adres_pracownika || null,
+        pesel_pracownika: documentData.data?.pesel_pracownika || null,
+        stanowisko: documentData.data?.stanowisko || null,
+        wymiar_pracy: documentData.data?.wymiar_pracy || null,
+        miejsce_pracy: documentData.data?.miejsce_pracy || null,
+        wynagrodzenie: documentData.data?.wynagrodzenie || null,
+        termin_platnosci: documentData.data?.termin_platnosci || null,
+        czas_trwania_umowy: documentData.data?.czas_trwania_umowy || null,
+        data_rozpoczecia: documentData.data?.data_rozpoczecia || null,
+        data: documentData.data?.data || null,
+        miejsce_zawarcia: documentData.data?.miejsce_zawarcia || null,
+        numer_faktury: documentData.data?.numer_faktury || null,
+        data_sprzedazy: documentData.data?.data_sprzedazy || null,
+        sposob_platnosci: documentData.data?.sposob_platnosci || null,
+        telefon_wystawcy: documentData.data?.telefon_wystawcy || null,
+        email_wystawcy: documentData.data?.email_wystawcy || null,
+        telefon_klienta: documentData.data?.telefon_klienta || null,
+        email_klienta: documentData.data?.email_klienta || null,
+        wystawiajacy: documentData.data?.wystawiajacy || null,
       },
     });
   } catch (error) {
@@ -268,12 +385,14 @@ router.get("/", async (req, res) => {
     }
 
     const formattedData = data.map((doc) => {
-      console.log("Document products:", doc.data?.products);
+      console.log("Document data:", doc.data);
       return {
         ...doc,
         url: doc.file_path,
         template_name: doc.templates?.name || null,
         products: Array.isArray(doc.data?.products) ? doc.data.products : [],
+        obowiazki: Array.isArray(doc.data?.obowiazki) ? doc.data.obowiazki : [],
+        oferty: Array.isArray(doc.data?.oferty) ? doc.data.oferty : [],
         numer_oferty: doc.data?.numer_oferty || null,
         nazwa_firmy_wystawcy: doc.data?.nazwa_firmy_wystawcy || null,
         nip_wystawcy: doc.data?.nip_wystawcy || null,
@@ -287,6 +406,33 @@ router.get("/", async (req, res) => {
         wartosc_brutto_suma: doc.data?.wartosc_brutto_suma || null,
         data_wystawienia: doc.data?.data_wystawienia || null,
         numer_konta_bankowego: doc.data?.numer_konta_bankowego || null,
+        nazwa_firmy: doc.data?.nazwa_firmy || null,
+        adres_firmy: doc.data?.adres_firmy || null,
+        nip: doc.data?.nip || null,
+        regon: doc.data?.regon || null,
+        przedstawiciel_imie_nazwisko:
+          doc.data?.przedstawiciel_imie_nazwisko || null,
+        przedstawiciel_stanowisko: doc.data?.przedstawiciel_stanowisko || null,
+        imie_nazwisko_pracownika: doc.data?.imie_nazwisko_pracownika || null,
+        adres_pracownika: doc.data?.adres_pracownika || null,
+        pesel_pracownika: doc.data?.pesel_pracownika || null,
+        stanowisko: doc.data?.stanowisko || null,
+        wymiar_pracy: doc.data?.wymiar_pracy || null,
+        miejsce_pracy: doc.data?.miejsce_pracy || null,
+        wynagrodzenie: doc.data?.wynagrodzenie || null,
+        termin_platnosci: doc.data?.termin_platnosci || null,
+        czas_trwania_umowy: doc.data?.czas_trwania_umowy || null,
+        data_rozpoczecia: doc.data?.data_rozpoczecia || null,
+        data: doc.data?.data || null,
+        miejsce_zawarcia: doc.data?.miejsce_zawarcia || null,
+        numer_faktury: doc.data?.numer_faktury || null,
+        data_sprzedazy: doc.data?.data_sprzedazy || null,
+        sposob_platnosci: doc.data?.sposob_platnosci || null,
+        telefon_wystawcy: doc.data?.telefon_wystawcy || null,
+        email_wystawcy: doc.data?.email_wystawcy || null,
+        telefon_klienta: doc.data?.telefon_klienta || null,
+        email_klienta: doc.data?.email_klienta || null,
+        wystawiajacy: doc.data?.wystawiajacy || null,
         templates: undefined,
         data: undefined,
       };
@@ -348,7 +494,39 @@ router.put(
         }
       }
 
-      console.log("Received products for update:", parsedProducts);
+      // Parsowanie obowiazki z JSON
+      let parsedObowiazki = existingDoc.data?.obowiazki || [];
+      if (formData.obowiazki) {
+        try {
+          parsedObowiazki = JSON.parse(formData.obowiazki);
+          if (!Array.isArray(parsedObowiazki)) {
+            parsedObowiazki = [];
+          }
+        } catch (e) {
+          console.error("Error parsing obowiazki:", e);
+          parsedObowiazki = [];
+        }
+      }
+
+      // Parsowanie oferty z JSON
+      let parsedOferty = existingDoc.data?.oferty || [];
+      if (formData.oferty) {
+        try {
+          parsedOferty = JSON.parse(formData.oferty);
+          if (!Array.isArray(parsedOferty)) {
+            parsedOferty = [];
+          }
+        } catch (e) {
+          console.error("Error parsing oferty:", e);
+          parsedOferty = [];
+        }
+      }
+
+      console.log("Received data for update:", {
+        products: parsedProducts,
+        obowiazki: parsedObowiazki,
+        oferty: parsedOferty,
+      });
 
       let filePath = existingDoc.file_path;
       let hash = existingDoc.hash;
@@ -364,7 +542,9 @@ router.put(
         await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
 
         // Zapisz nowy PDF w Cloudinary
-        const fileName = `faktura_${Date.now()}.pdf`;
+        const fileName = `${existingDoc.type
+          .toLowerCase()
+          .replace(" ", "_")}_${Date.now()}.pdf`;
         const uploadResult = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             {
@@ -401,6 +581,8 @@ router.put(
           formData.podpis !== undefined ? formData.podpis : existingDoc.podpis,
         data: {
           products: parsedProducts,
+          obowiazki: parsedObowiazki,
+          oferty: parsedOferty,
           numer_oferty:
             formData.numer_oferty || existingDoc.data?.numer_oferty || null,
           nazwa_firmy_wystawcy:
@@ -441,6 +623,79 @@ router.put(
             formData.numer_konta_bankowego ||
             existingDoc.data?.numer_konta_bankowego ||
             null,
+          nazwa_firmy:
+            formData.nazwa_firmy || existingDoc.data?.nazwa_firmy || null,
+          adres_firmy:
+            formData.adres_firmy || existingDoc.data?.adres_firmy || null,
+          nip: formData.nip || null,
+          regon: formData.regon || existingDoc.data?.regon || null,
+          przedstawiciel_imie_nazwisko:
+            formData.przedstawiciel_imie_nazwisko ||
+            existingDoc.data?.przedstawiciel_imie_nazwisko ||
+            null,
+          przedstawiciel_stanowisko:
+            formData.przedstawiciel_stanowisko ||
+            existingDoc.data?.przedstawiciel_stanowisko ||
+            null,
+          imie_nazwisko_pracownika:
+            formData.imie_nazwisko_pracownika ||
+            existingDoc.data?.imie_nazwisko_pracownika ||
+            null,
+          adres_pracownika:
+            formData.adres_pracownika ||
+            existingDoc.data?.adres_pracownika ||
+            null,
+          pesel_pracownika:
+            formData.pesel_pracownika ||
+            existingDoc.data?.pesel_pracownika ||
+            null,
+          stanowisko:
+            formData.stanowisko || existingDoc.data?.stanowisko || null,
+          wymiar_pracy:
+            formData.wymiar_pracy || existingDoc.data?.wymiar_pracy || null,
+          miejsce_pracy:
+            formData.miejsce_pracy || existingDoc.data?.miejsce_pracy || null,
+          wynagrodzenie:
+            formData.wynagrodzenie || existingDoc.data?.wynagrodzenie || null,
+          termin_platnosci:
+            formData.termin_platnosci ||
+            existingDoc.data?.termin_platnosci ||
+            null,
+          czas_trwania_umowy:
+            formData.czas_trwania_umowy ||
+            existingDoc.data?.czas_trwania_umowy ||
+            null,
+          data_rozpoczecia:
+            formData.data_rozpoczecia ||
+            existingDoc.data?.data_rozpoczecia ||
+            null,
+          data: formData.data || existingDoc.data?.data || null,
+          miejsce_zawarcia:
+            formData.miejsce_zawarcia ||
+            existingDoc.data?.miejsce_zawarcia ||
+            null,
+          numer_faktury:
+            formData.numer_faktury || existingDoc.data?.numer_faktury || null,
+          data_sprzedazy:
+            formData.data_sprzedazy || existingDoc.data?.data_sprzedazy || null,
+          sposob_platnosci:
+            formData.sposob_platnosci ||
+            existingDoc.data?.sposob_platnosci ||
+            null,
+          telefon_wystawcy:
+            formData.telefon_wystawcy ||
+            existingDoc.data?.telefon_wystawcy ||
+            null,
+          email_wystawcy:
+            formData.email_wystawcy || existingDoc.data?.email_wystawcy || null,
+          telefon_klienta:
+            formData.telefon_klienta ||
+            existingDoc.data?.telefon_klienta ||
+            null,
+          email_klienta:
+            formData.email_klienta || existingDoc.data?.email_klienta || null,
+          wystawiajacy:
+            formData.wystawiajacy || existingDoc.data?.wystawiajacy || null,
         },
         updated_at: new Date().toISOString(),
       };
@@ -459,13 +714,15 @@ router.put(
         throw updateError;
       }
 
-      console.log("Updated document products:", updatedDoc.data?.products);
+      console.log("Updated document data:", updatedDoc.data);
 
       res.status(200).json({
         document: {
           ...updatedDoc,
           url: filePath,
           products: updatedDoc.data?.products || [],
+          obowiazki: updatedDoc.data?.obowiazki || [],
+          oferty: updatedDoc.data?.oferty || [],
           numer_oferty: updatedDoc.data?.numer_oferty || null,
           nazwa_firmy_wystawcy: updatedDoc.data?.nazwa_firmy_wystawcy || null,
           nip_wystawcy: updatedDoc.data?.nip_wystawcy || null,
@@ -479,6 +736,35 @@ router.put(
           wartosc_brutto_suma: updatedDoc.data?.wartosc_brutto_suma || null,
           data_wystawienia: updatedDoc.data?.data_wystawienia || null,
           numer_konta_bankowego: updatedDoc.data?.numer_konta_bankowego || null,
+          nazwa_firmy: updatedDoc.data?.nazwa_firmy || null,
+          adres_firmy: updatedDoc.data?.adres_firmy || null,
+          nip: updatedDoc.data?.nip || null,
+          regon: updatedDoc.data?.regon || null,
+          przedstawiciel_imie_nazwisko:
+            updatedDoc.data?.przedstawiciel_imie_nazwisko || null,
+          przedstawiciel_stanowisko:
+            updatedDoc.data?.przedstawiciel_stanowisko || null,
+          imie_nazwisko_pracownika:
+            updatedDoc.data?.imie_nazwisko_pracownika || null,
+          adres_pracownika: updatedDoc.data?.adres_pracownika || null,
+          pesel_pracownika: updatedDoc.data?.pesel_pracownika || null,
+          stanowisko: updatedDoc.data?.stanowisko || null,
+          wymiar_pracy: updatedDoc.data?.wymiar_pracy || null,
+          miejsce_pracy: updatedDoc.data?.miejsce_pracy || null,
+          wynagrodzenie: updatedDoc.data?.wynagrodzenie || null,
+          termin_platnosci: updatedDoc.data?.termin_platnosci || null,
+          czas_trwania_umowy: updatedDoc.data?.czas_trwania_umowy || null,
+          data_rozpoczecia: updatedDoc.data?.data_rozpoczecia || null,
+          data: updatedDoc.data?.data || null,
+          miejsce_zawarcia: updatedDoc.data?.miejsce_zawarcia || null,
+          numer_faktury: updatedDoc.data?.numer_faktury || null,
+          data_sprzedazy: updatedDoc.data?.data_sprzedazy || null,
+          sposob_platnosci: updatedDoc.data?.sposob_platnosci || null,
+          telefon_wystawcy: updatedDoc.data?.telefon_wystawcy || null,
+          email_wystawcy: updatedDoc.data?.email_wystawcy || null,
+          telefon_klienta: updatedDoc.data?.telefon_klienta || null,
+          email_klienta: updatedDoc.data?.email_klienta || null,
+          wystawiajacy: updatedDoc.data?.wystawiajacy || null,
         },
       });
     } catch (error) {
@@ -585,4 +871,3 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
-// zaebis
