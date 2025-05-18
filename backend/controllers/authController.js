@@ -130,4 +130,114 @@ const getUser = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getUser };
+// Aktualizacja danych użytkownika
+const updateUser = async (req, res) => {
+  const { firstName, lastName, email } = req.body;
+  const userId = req.user.id;
+
+  try {
+    // Sprawdzenie, czy nowy email nie jest już używany
+    if (email) {
+      const existing = await pool.query(
+        "SELECT * FROM users WHERE email = $1 AND id != $2",
+        [email, userId]
+      );
+      if (existing.rows.length > 0) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+    }
+
+    // Aktualizacja danych
+    const result = await pool.query(
+      `UPDATE users
+       SET first_name = $1, last_name = $2, email = $3
+       WHERE id = $4
+       RETURNING id, first_name, last_name, email`,
+      [firstName, lastName, email, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error("Error in updateUser:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Usuwanie konta użytkownika
+const deleteUser = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM users WHERE id = $1 RETURNING id",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteUser:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Zmiana hasła użytkownika
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id;
+
+  try {
+    // Wyszukiwanie użytkownika
+    const userRes = await pool.query("SELECT * FROM users WHERE id = $1", [
+      userId,
+    ]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = userRes.rows[0];
+
+    // Weryfikacja bieżącego hasła
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password" });
+    }
+
+    // Walidacja nowego hasła
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 6 characters long" });
+    }
+
+    // Hashowanie nowego hasła
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Aktualizacja hasła
+    await pool.query("UPDATE users SET password = $1 WHERE id = $2", [
+      hashedPassword,
+      userId,
+    ]);
+
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error in changePassword:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  getUser,
+  updateUser,
+  deleteUser,
+  changePassword,
+};
