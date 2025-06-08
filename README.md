@@ -121,8 +121,9 @@ Implementacja powiadomień push dla statusów dokumentów.
 Rozszerzenie integracji z kolejnymi platformami podpisu elektronicznego.
 
 ## Kontakt
-W razie pytań skontaktuj się z zespołem deweloperskim: email@example.com (mailto:email@example.com).
+W razie pytań skontaktuj się z zespołem deweloperskim: mikolajmelnyk16@gmail.com.
 
 ## Projekt stworzony w ramach Automatyzacji Procesów Biurokratycznych.
 
 ## Autor: Mikołaj Melnyk
+
