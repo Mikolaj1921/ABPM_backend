@@ -78,57 +78,51 @@ Backend aplikacji oparty jest na **Node.js** z frameworkiem **Express**, obsług
    ```bash
    npm install express pg jsonwebtoken bcrypt
 
-Opcjonalnie: Biblioteki do integracji z DocuSign/Adobe Sign.
+## Opcjonalne zależności
+- Biblioteki do integracji z platformami podpisu elektronicznego:
+  - **DocuSign**: SDK do integracji z API DocuSign.
+  - **Adobe Sign**: SDK do integracji z API Adobe Sign.
 
-Konfiguracja:
-Utwórz plik .env z następującymi zmiennymi:
+## Konfiguracja
 
-env
-PORT=3000
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-JWT_SECRET=your_jwt_secret
+1. **Utwórz plik `.env`** w głównym katalogu projektu z następującymi zmiennymi środowiskowymi:
+   ```env
+   PORT=3000
+   DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+   JWT_SECRET=your_jwt_secret
 
-Skonfiguruj Render do hostingu aplikacji i bazy danych.
+## Skonfiguruj Render do hostingu aplikacji i bazy danych.
 
-Uruchomienie
+## Uruchomienie
 Sklonuj repozytorium:
 bash
 git clone <repository_url>
 cd backend
 
-Zainstaluj zależności:
+## Zainstaluj zależności:
 bash
 npm install
 
-Uruchom serwer:
+## Uruchom serwer:
 bash
 npm start
 
-Struktura projektu
-├── src/
-│   ├── controllers/    # Logika biznesowa API
-│   ├── models/         # Modele bazy danych
-│   ├── routes/         # Definicje endpointów API
-│   ├── middleware/     # Middleware (np. autoryzacja JWT)
-│   ├── services/       # Usługi (np. generowanie PDF, wysyłka e-mail)
-│   └── utils/          # Narzędzia (np. szyfrowanie, walidacja)
-├── .env                # Zmienne środowiskowe
-├── package.json        # Zależności projektu
-└── README.md           # Dokumentacja
 
-Endpointy API (przykłady)
+## Endpointy API (przykłady)
 POST /api/auth/login: Logowanie użytkownika (zwraca JWT).
 POST /api/documents/generate: Generowanie dokumentu na podstawie danych.
 POST /api/documents/sign: Podpisywanie dokumentu.
 POST /api/documents/send: Wysyłka dokumentu do klienta.
 GET /api/documents/:id: Pobieranie szczegółów dokumentu.
 
-Plany rozwoju
+## Plany rozwoju
 Dodanie wsparcia dla niestandardowych logotypów w dokumentach.
 Implementacja powiadomień push dla statusów dokumentów.
 Rozszerzenie integracji z kolejnymi platformami podpisu elektronicznego.
 
-Kontakt
+## Kontakt
 W razie pytań skontaktuj się z zespołem deweloperskim: email@example.com (mailto:email@example.com).
 
-Projekt stworzony w ramach Automatyzacji Procesów Biurokratycznych.
+## Projekt stworzony w ramach Automatyzacji Procesów Biurokratycznych.
+
+## Autor: Mikołaj Melnyk
